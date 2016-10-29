@@ -1,2 +1,0 @@
-# simianz-backend
-simianz-backend
