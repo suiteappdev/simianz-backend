@@ -15,7 +15,8 @@ module.exports = function(app, apiRoutes){
           if(err){
               return res.status(409).json(err);
           }
-
+          
+          user.password = null;
           res.status(200).json(user);
         });
     }
