@@ -32,7 +32,8 @@ apiRoutes.use(function(req, res, next) {
                 Session.find({token : token}, function(err, rs){
                     if(!err){ 
                             if(rs.length > 0){ 
-                              req.decoded = decoded;    
+                              req.decoded = decoded;
+                              req.isAutheticated = true;    
                               next();
                            }
                            else{

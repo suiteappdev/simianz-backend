@@ -1,10 +1,12 @@
 module.exports = function(app, apiRoutes){
     var mongoose = require('mongoose');
-    var userHelper = require('../models/userHelper');
     var path = require("path");
+    var userHelper = require('../models/userHelper');
+    var paginate = require(path.join(process.env.PWD , "helpers", "paginate.js"));;
     var User = require('../models/user');
     var _batmanMailer = require(path.join(process.env.PWD , "helpers", "BatmanMailer", "index.js"));
     var _compiler = require(path.join(process.env.PWD , "helpers", "mailer.js"));
+    var apiResponder = require("../helpers/api-responder.js");
     var crypto = require("crypto");
 
     function create(req, res){
@@ -59,16 +61,17 @@ module.exports = function(app, apiRoutes){
     }
 
     function users(req, res){
-        User.find()
-        .exec(function(err, users){
+      paginate(User, parseInt(req.params.page) || 0, parseInt(req.params.items_peer_page) || 0 , {} , function(err, users){
             if(!err){
-                res.status(200).json(users.map(function(obj){
+                users.data.map(function(obj){
                   obj.password = null;
-
                   return obj;
-                }));
+                });
+
+                var response = users
+                res.status(200).json(response);
             }
-        });
+      })
     }
 
     function user(req, res){
@@ -213,8 +216,16 @@ module.exports = function(app, apiRoutes){
       });      
   }*/
 
-    apiRoutes.get('/user', users);
-    apiRoutes.get('/user/:id', user);
+    function validateToken(req, res){
+      if(req.isAutheticated){
+            return res.status(200).json({session : true});
+      }
+
+      res.status(401).json(apiResponder.error("INVALID_SESSION"));
+    }
+
+    apiRoutes.get('/user/:page?/:items_peer_page?', users);
+    apiRoutes.get('/user/:id/', user);
     //apiRoutes.get('/user/verification-code/:user', verificationCode);
     //app.get('/api/user/exists/:email', exists);
     //app.post('/api/reset/:token', reset);
@@ -222,6 +233,8 @@ module.exports = function(app, apiRoutes){
     //app.post('/api/recover/', recover);
     app.post("/api/user", create);
     app.post("/api/login", login);
+
+    apiRoutes.post("/validate-token", validateToken);
     apiRoutes.put("/user/:id", update);
     apiRoutes.delete("/user/:id", remove);
 

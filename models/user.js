@@ -10,6 +10,7 @@ var Schema = mongoose.Schema;
 // Load required packages
 var timestamps = require('mongoose-timestamp');
 var metadata = require('./plugins/metadata');
+var paginate = require('./plugins/paginate');
 
 var _Schema = new Schema({
 	  username : { type : String, trim : true, lowercase : true, unique:true, required:true},
@@ -46,10 +47,9 @@ _Schema.statics.exists = function(email, callback){
 	})
 }
 
-_Schema.static
-
 //add plugins
 _Schema.plugin(metadata);
+_Schema.plugin(paginate);
 _Schema.plugin(timestamps);
 
 module.exports = mongoose.model('User', _Schema);
