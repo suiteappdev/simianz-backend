@@ -61,17 +61,24 @@ module.exports = function(app, apiRoutes){
     }
 
     function users(req, res){
-      paginate(User, parseInt(req.params.page) || 0, parseInt(req.params.items_peer_page) || 0 , {} , function(err, users){
-            if(!err){
-                users.data.map(function(obj){
-                  obj.password = null;
-                  return obj;
-                });
+      var query = User.find({}).sort("first_name");
+      
+      paginate(query, parseInt(req.params.page) || 0, parseInt(req.params.items_peer_page) || 10).exec(function(err, users){
+          User.count().exec(function(err, count) {
+              if(!err){
+                  users.map(function(obj){
+                    obj.password = null;
+                    return obj;
+                  });
 
-                var response = users
-                res.status(200).json(response);
-            }
-      })
+                  res.status(200).json({
+                    data : users,
+                    page : req.params.page,
+                    pages : Math.round(count / req.params.items_peer_page)
+                  });
+              }
+          })
+      });
     }
 
     function user(req, res){

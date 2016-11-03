@@ -1,5 +1,6 @@
-function paginate(model, page, max_items, sort, callback){
-	model.find().limit(max_items).skip(page > 1 ? max_items * page : 0).exec(function(err, data){
+function paginate(query, page, max_items, callback){
+	return query.limit(max_items).skip(page > 1 ? max_items * page : 0);
+	/*model.find().limit(max_items).skip(page > 1 ? max_items * page : 0).exec(function(err, data){
 		if(!err){
 	 		model.count().exec(function(err, count) {
 	 			if(!err){
@@ -11,7 +12,7 @@ function paginate(model, page, max_items, sort, callback){
 	 			}
 	        })
 		}
-	}); 
+	}); */
 }
 
 module.exports = paginate;
